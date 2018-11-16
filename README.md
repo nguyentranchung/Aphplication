@@ -11,7 +11,6 @@ Thông thường khi bạn chạy một tập lệnh PHP, điều sau sẽ xảy
 
 Điều duy nhất xảy ra khác nhau trên mỗi yêu cầu là bước cuối cùng. Tất cả các công việc (không tầm thường) khởi động một ứng dụng được thực hiện đều đặn trên mỗi yêu cầu. Mỗi khi một trang được xem, các lớp được nạp, framework được khởi tạo, cơ sở dữ liệu được kết nối, các thư viện được cấu hình. Tất cả công việc khó khăn này được thực hiện theo mọi yêu cầu. Mỗi lần bạn truy cập một trang, tất cả các tệp cấu hình đều được tải và các lớp được khởi tạo.
 
-## Aphplication là gì (Không phải Application đâu nhé)?
 Aphplication là một nỗ lực để giải quyết vấn đề này bằng cách thay đổi bản chất của cách PHP xử lý các yêu cầu.
 
 Điều gì sẽ xảy ra nếu chúng ta có thể chụp nhanh (snapshot) một kịch bản (script) PHP ở bước 5 (xem lại hình trên nhé), sau khi mọi thứ đã khởi động và sẵn sàng xử lý các yêu cầu riêng lẻ? Đây chính là cách Aphplication hoạt động:
@@ -22,10 +21,7 @@ Một khi sử dụng Aphplication, code thường sẽ trên mỗi yêu cầu �
 
 Kết quả là mỗi yêu cầu sẽ chỉ thực hiện các tác vụ cần thiết. [Gia tăng hiệu suất cho ứng dụng Laravel lên đến 2400%](https://laracasts.com/discuss/channels/laravel/proof-of-concept-application-server-2400-laravel-startup-speed-increase)
 
-
-
-## Aphplication
-
+## Aphplication là gì (Không phải Application đâu nhé)?
 
 Aphplication là một ứng dụng máy chủ PHP. Nó hoạt động giống như là Node.js, ứng dụng của bạn luôn luôn chạy và khi ai đó kết nối, họ đang kết nối với một ứng dụng đang hoạt động. Điều này cho phép bạn duy trì trạng thái trên các yêu cầu và tránh code khởi động nhiều lần trên mỗi yêu cầu
 
