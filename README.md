@@ -189,7 +189,6 @@ require '../Aphplication/Client.php';
 $client = new \Aphplication\Client();
 echo $client->connect();
 ```
-tuy nhiên nó không phải là một ý tưởng tốt như các nhà soạn nhạc tự động tải là một chi phí quan trọng để tải một tập tin duy nhất.
 (Điều chỉnh đường dẫn đến `Aphplication/Client.php` cho phù hợp). Bạn *có thể* sử dụng copmoser để tự động load, tuy nhiên nó không phải là một ý tưởng tốt bởi vì dùng composer autoload tiêu tốn một chi phí đáng kể chỉ để loading một file. Bạn sẽ nhận được hiệu suất tốt hơn chỉ bằng cách sử dụng `require` để include trong client code.
 
 Mã máy khách được cung cấp kết nối với máy chủ, gửi dữ liệu get/post/vv từ yêu cầu hiện tại và trả về phản hồi. Tệp PHP này **là** chạy trên mọi yêu cầu, do đó hãy cố gắng giữ cho nó luôn có điện!
