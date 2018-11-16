@@ -1,67 +1,68 @@
-# Aphplication - A lightweight php Application Server
+# Aphplication - Máy chủ ứng dụng PHP siêu nhẹ
 
 
-## PHP is slow by nature becauase everything is done on every request
+## PHP chậm là lẽ tự nhiên bởi vì tất cả mọi thứ được thực hiện trên mọi yêu cầu
 
-Normally  when you run a PHP script the following happens:
+Thông thường khi bạn chạy một tập lệnh PHP, điều sau sẽ xảy ra:
 
 ![Without an app server](https://r.je/img/aphplication-without.png)
+* **_Ô màu đỏ là diễn ra trên mọi request_**
+* **_Ô màu xanh là chỉ diễn ra trên request đầu tiên_**
 
+Điều duy nhất xảy ra khác nhau trên mỗi yêu cầu là bước cuối cùng. Tất cả các công việc (không tầm thường) khởi động một ứng dụng được thực hiện đều đặn trên mỗi yêu cầu. Mỗi khi một trang được xem, các lớp được nạp, framework được khởi tạo, cơ sở dữ liệu được kết nối, các thư viện được cấu hình. Tất cả công việc khó khăn này được thực hiện theo mọi yêu cầu. Mỗi lần bạn truy cập một trang, tất cả các tệp cấu hình đều được tải và các lớp được khởi tạo.
 
-The only thing that happens differently on each request is the final step. All the (non-trivial) work of boostrapping the application is done on every single request. Each time a page is viewed, the classes are loaded, the framework is instantiated, database connected to, libraries configured. All of this hard work is done on every request.  Every time you visit a page all the config files are loaded and classes instantiated.
+## Aphplication là gì (Không phải Application đâu nhé)?
+Aphplication là một nỗ lực để giải quyết vấn đề này bằng cách thay đổi bản chất của cách PHP xử lý các yêu cầu.
 
-
-Aphplication is an attempt to solve this problem by changing the nature of the way PHP handles requests.
-
-What if we could take a snapshot of a PHP script at step 5, after everything is boostrapped and ready to handle the individual requests? This is how Aphplication works:
+Điều gì sẽ xảy ra nếu chúng ta có thể chụp nhanh (snapshot) một kịch bản (script) PHP ở bước 5 (xem lại hình trên nhé), sau khi mọi thứ đã khởi động và sẵn sàng xử lý các yêu cầu riêng lẻ? Đây chính là cách Aphplication hoạt động:
 
 ![Without an app server](https://r.je/img/aphplication-with.png)
 
-By using Aphplication, the code that is normally run on each request is run once and then listens for connections. You can effectively jump in to any part of a running PHP script.
+Một khi sử dụng Aphplication, code thường sẽ trên mỗi yêu cầu được chạy một lần và sau đó lắng nghe các kết nối. Trên thực tế bạn có thể nhảy vào bất kỳ phần nào của một tập lệnh PHP đang chạy.
 
-
-The result is that each request will only perform the tasks it needs. [This gives a 2400% performance increase in Laravel](https://laracasts.com/discuss/channels/laravel/proof-of-concept-application-server-2400-laravel-startup-speed-increase)
+Kết quả là mỗi yêu cầu sẽ chỉ thực hiện các tác vụ cần thiết. [Gia tăng hiệu suất cho ứng dụng Laravel lên đến 2400%](https://laracasts.com/discuss/channels/laravel/proof-of-concept-application-server-2400-laravel-startup-speed-increase)
 
 
 
 ## Aphplication
 
 
-Aphplication is a PHP application server. This works in a similar way to Node.js, your application is aways running and when someone connects, they are connecting to the active application. This allows you to maintain state across requests and avoid a lot of the bootstrapping code that exists on each request.
+Aphplication là một ứng dụng máy chủ PHP. Nó hoạt động giống như là Node.js, ứng dụng của bạn luôn luôn chạy và khi ai đó kết nối, họ đang kết nối với một ứng dụng đang hoạt động. Điều này cho phép bạn duy trì trạng thái trên các yêu cầu và tránh code khởi động nhiều lần trên mỗi yêu cầu
 
-There are two parts to an Aphplication project:
+Có hai phần của dự án Aphplication:
 
-1) The server. This contains all of your code and keeps running even when nobody is visiting the page.
+1) Phía máy chủ: sẽ chứa tất cả code của bạn và tiếp tục chạy ngay cả khi không có ai truy cập trang.
 
-2) The client. This is a middle-man between the browser and the running application. When someone connects to `client.php` the PHP script runs, talks to the server, asks the server to do some processing and then returns the result. The server keeps running but the client script stops.
+2) Phía client: Đây là một middle-man đứng giữa trình duyệt và ứng dụng đang chạy. Khi ai đó kết nối với `client.php` kịch bản (script) PHP chạy, middle-man này sẽ nói chuyện với máy chủ, yêu cầu máy chủ thực hiện một số xử lý và sau đó trả về kết quả. Máy chủ tiếp tục chạy nhưng kịch bản (script) máy khách dừng lại.
 
-## Requirements
+## Yêu cầu
 
-Aphplication uses message queues internally. This is considerably faster than sockets which are used by other similar tools. You must have the `extension=sysvmsg.so` uncommented in `php.ini`.
+Aphplication sử dụng hàng đợi tin nhắn trong nội bộ. Điều này nhanh hơn đáng kể so với socket hoặc các tools khác tương tự. Bạn phải có phần mở rộng `extension=sysvmsg.so` trong `php.ini` bằng cách cài đặt mới phần mở rộng hoặc bỏ comment trong `php.ini` nếu có rồi.
 
 
-Aphplication requires a linux server with the sysvmsg.so extension enabled. This extension exists by default on mosts linux default installations.
+Aphplication yêu cầu một máy chủ Linux với phần mở rộng sysvmsg.so được kích hoạt. Phần mở rộng này tồn tại theo mặc định trên hầu hết các cài đặt mặc định của Linux.
 
-## Usage
+## Cách sử dụng
 
-1) Create your server by creating a class that implements the Aphplication\Aphplication interface
+1) Tạo máy chủ của bạn bằng cách tạo một file class và implements Aphplication\Aphplication interface
 
-2) Pass an instance of this class to `Aphplication\Server()`;
+2) Truyền vào trong class đó một instance của `Aphplication\Server()`;
 
-3) Save this as a file e.g. `server.php`
+3) Lưu file đó lại, ví dụ: `server.php`
 
 ```php
-//This class is executed once and keeps running in the background
+// Lớp này được thực hiện một lần và tiếp tục chạy trong nền
 class MyApplication implements \Aphplication\Aphplication {
-	// State that is maintained across reuqests. This is not serialised, it is kept-as is so can be
-	// Database connections, complex object graphs, etc
-	// Note: Each worker thread has a copy of this state by default
+	// Trạng thái được duy trì qua các lần yêu cầu lại. Đây không phải là serialized, nó được giữ như là có thể
+	// được kết nối cơ sở dữ liệu, đồ thị đối tượng phức tạp, vv
+	// Lưu ý: Mỗi worker thread có một bản sao của trạng thái này theo mặc định
 	private $num = 0;
 
-	// The accept method is executed on each request. Because this instance is already running, the superglobals are passed from the client
+	// Phương thức chấp nhận được thực hiện trên mỗi yêu cầu.
+	// Bởi vì trường hợp này đã chạy, các superglobals được truyền từ máy khách
 
-	//The return value is a string which is to be sent back to the client.
-	//Note: For better comatibility any header() calls are also sent back to the client
+	// Giá trị trả về là một chuỗi được gửi lại cho máy khách.
+	// Lưu ý: Để có sự tương thích tốt hơn, mọi cuộc gọi header() cũng được gửi lại cho máy khách
 	public function accept(): string {
 		// The only code that is run on each request.
 		$this->num++;
@@ -73,26 +74,27 @@ $server = new \Aphplication\Server(new MyApplication());
 $server->start();
 ```
 
-The server will now run and the single `MyApplication` instance will be kept running in a PHP process on the server. Each time the client connects, the server's `accept` method is called and can do the specific processing for the page.
+Máy chủ bây giờ sẽ chạy và chỉ mỗi một thực thể `MyApplication` sẽ được giữ để chạy PHP process trên server. Mỗi khi máy khách kết nối, phương thức `accept` của máy chủ được gọi và có thể thực hiện xử lý cụ thể cho trang đó.
 
-Which allows you to do something like this:
 
+Bạn cũng có thể làm điều này:
 
 ```php
-//This class is executed once and keeps running in the background
+// Lớp này được thực hiện một lần và tiếp tục chạy trong nền
 class MyApplication implements \Aphplication\Aphplication {
 	private $frameworkEntryPoint;
 
 	public function __construct() {
-		// Instantiate the framework and store it in memory. This only happens once and is kept active on the server
+		// Khởi tạo framework và lưu trữ nó trong bộ nhớ. Điều này chỉ xảy ra một lần và được duy trì hoạt động trên máy chủ
 		$db = new PDO('...');
 		$this->frameworkEntryPoint = new MyFramework($db);
 	}
 
-	// The accept method is executed on each request. Because this instance is already running, the superglobals are passed from the client
+	// Phương thức chấp nhận được thực hiện trên mỗi yêu cầu.
+	// Bởi vì trường hợp này đã chạy, các superglobals được truyền từ máy khách
 
-	//The return value is a string which is to be sent back to the client.
-	//Note: For better comatibility any header() calls are also sent back to the client
+	// Giá trị trả về là một chuỗi được gửi lại cho máy khách.
+	// Lưu ý: Để có sự tương thích tốt hơn, mọi cuộc gọi header() cũng được gửi lại cho máy khách
 	public function accept(): string {
 		// Each time a client requests, route the request as normal
 		return $this->frameworkEntryPoint->route($_SERVER['REQUEST_URI']);
@@ -104,28 +106,28 @@ $server->start();
 ```
 
 
-By doing this, all your framework classes are only ever loaded once. This is even better than opcaching because not only are files only parsed once, the bootstrap code is only ever executed once.
+Bằng cách này, tất cả các framework class của bạn chỉ được tải một lần. Điều này thậm chí còn tốt hơn so với [opcaching](https://chungnguyen.xyz/posts/php-7-4-preload-toc-do-ban-tho-cho-php) vì không chỉ các tệp chỉ được phân tích cú pháp một lần, mà code khởi động cũng chỉ được thực thi một lần.
 
-2) Start the application on the command line:
+2) Khởi động ứng dụng trên dòng lệnh:
 
-Assuming your server is stored in `server.php` start the app server:
+Giả sử máy chủ của bạn được lưu trữ trong file `server.php`, khởi động máy chủ ứng dụng:
 
 ```
 php server.php
 ```
 
-3) Run the CLI Client script from the same directory that the server was started from (Both the server and the client *must* be started from the same current working directory)
+3) Chạy kịch bản lệnh CLI Client từ cùng thư mục mà máy chủ được khởi động (Cả server và client *phải* chạy từ cùng một thư mục làm việc)
 
-Now connect to the server from the client.
+Bây giờ kết nối với máy chủ từ máy khách.
 
-```
+```php
 require '../Aphplication/Client.php';
 $client = new \Aphplication\Client();
 echo $client->connect();
 
 ```
 
-To use a web server as a client simply create the PHP script:
+Để sử dụng máy chủ web làm ứng dụng khách, chỉ cần tạo tập lệnh PHP:
 
 ```php
 require '../Aphplication/Client.php';
@@ -135,98 +137,98 @@ echo $client->connect();
 
 
 
-### Shutting down the server
+### Tắt máy chủ
 
-To shut down the server run the same script via command line with the stop command:
+Để tắt máy chủ chạy cùng một kịch bản thông qua dòng lệnh với lệnh dừng:
 
-```php
+```bash
 php server stop
 ```
 
-### Webserver example
+### Ví dụ về máy chủ Web
 
-First create a web server, `server.php`. This does not need to be in a `public_html` directory or anywhere that is web-accessible:
+Đầu tiên tạo một máy chủ web trong file `server.php`. Nó không cần phải ở trong thư mục `public_html` hay mà bất cứ đâu bạn thích:
 
 
 ```php
 require 'vendor/autoload.php';
 class MyApplication implements \Aphplication\Aphplication {
-	//Application state. This will be kept in memory when the application is closed
-	//This can even be MySQL connections and other resources
+	// Trạng thái ứng dụng. Điều này sẽ được lưu trong bộ nhớ khi ứng dụng bị đóng
+	// Điều này thậm chí có thể là các kết nối MySQL và các tài nguyên khác
 
 	private $num;
 
 	public function accept(): string {
 		$this->num++;
 
-		//return the response to send back to the browser, e.g. some HTML code
+		// trả lại phản hồi để gửi lại cho trình duyệt, ví dụ: một số mã HTML
 		return $this->num;
 	}
 
 }
 
 
-//Now create an instance of the server
+// Bây giờ tạo một instance máy chủ
 $server = new \Aphplication\Server(new MyApplication());
 
-//Check argv to allow starting and stopping the server
+// Kiểm tra argv để cho phép bắt đầu và dừng máy chủ
 if (isset($argv[1]) && $argv[1] == 'stop') $server->shutdown();
 else $server->start();
 ```
 
-Once the server has been written, start it using
+Khi máy chủ đã được viết xong, hãy khởi động nó bằng
 
 ```
 php server.php
 ```
 
-This will start a PHP process in memory and start waiting for requests. To stop the server you can call `php server.php stop`
+Điều này sẽ bắt đầu một tiến trình PHP trong bộ nhớ và bắt đầu chờ các yêu cầu. Để dừng máy chủ bạn có thể gọi `php server.php stop`
 
-Now that the server is running, create a `client.php` inside the `public_html` or `httpdocs` folder, somewhere that is web-accessible.
+Bây giờ máy chủ đang chạy, tạo một file `client.php` bên trong thư mục `public_html` hay `httpdocs` nơi mà máy chủ web có thể truy cập được.
 
-`client.php` should contain only this code:
+`client.php` chỉ nên chứa mã này:
 
 ```php
 require '../Aphplication/Client.php';
 $client = new \Aphplication\Client();
 echo $client->connect();
 ```
+tuy nhiên nó không phải là một ý tưởng tốt như các nhà soạn nhạc tự động tải là một chi phí quan trọng để tải một tập tin duy nhất.
+(Điều chỉnh đường dẫn đến `Aphplication/Client.php` cho phù hợp). Bạn *có thể* sử dụng copmoser để tự động load, tuy nhiên nó không phải là một ý tưởng tốt bởi vì dùng composer autoload tiêu tốn một chi phí đáng kể chỉ để loading một file. Bạn sẽ nhận được hiệu suất tốt hơn chỉ bằng cách sử dụng `require` để include trong client code.
 
-(Adjust the path to `Aphplication/Client.php` accordingly). You *could* use composer's autoloader for this, however it's not a good idea as composers autoload is a significant overhead for loading a single file. You'll get better perfomance just using `require` to include the supplied client code.
+Mã máy khách được cung cấp kết nối với máy chủ, gửi dữ liệu get/post/vv từ yêu cầu hiện tại và trả về phản hồi. Tệp PHP này **là** chạy trên mọi yêu cầu, do đó hãy cố gắng giữ cho nó luôn có điện!
 
-The supplied client code connects to the server, sends it the get/post/etc data from the current request and returns the response. This PHP file **is** run on every request so try to keep it light!
-
-Now if you visit `client.php` in your browser, you'll see the output from the server. In this case it will show a counter because each time the server is connected to, the `$num` variable is incremented by one.
-
-
-### Now what?
-
-Your server can do *anything a normal PHP script can do*. Once a `require` statement has been proceessd on the server, that file is required and won't be required again until the server is restarted!
-
-### Development
-
-This does make development more difficult as you have to restart the server each time. Future releases will have a development mode that doesn't actually launch the server but allows you to run clients as if it was (like a normal php script where everything is loaded each time).
+Bây giờ nếu bạn ghé thăm `client.php` trên trình duyệt, bạn sẽ thấy đầu ra từ máy chủ. Trong trường hợp này, nó sẽ hiển thị một bộ đếm vì mỗi lần máy chủ được kết nối, biến `$ num` được tăng thêm một.
 
 
+### Giờ thì sao?
+
+Máy chủ của bạn có thể thực hiện *mọi thứ mà một tập lệnh PHP bình thường có thể thực hiện*. Khi một câu lệnh `require` đã được proceessd trên máy chủ, tệp đó là bắt buộc và sẽ không được yêu cầu lại cho đến khi máy chủ được khởi động lại!
 
 
-## Performance
+### Phát triển
 
-Aphplication can be up to 1000% faster than a standard PHP script. When you run a Laravel, Wordpress or Zend project the PHP interpreter is executed and does a lot of work: Loading all the required.php files, connecting to the database and finally processing your request. With Aphplication, all that boostrapping code is done once, when the server starts. When someone connects they are connecting to the running application that's already done all that boostrapping work, the server then just processes the request and hands it off to the client.
-
-You can think of the Application server a bit like MySQL, it's always running and waiting to handle requests. When a request is made, it does some processing and returns the result. Unlike a traditional PHP script, it keeps running ready to handle the next request.
-
-This gives Aphplication a huge performance beneifit over the traditional method of loading all the required files and making all the necessary connections on each request.
+Điều này làm cho việc phát triển trở nên khó khăn hơn khi bạn phải khởi động lại máy chủ mỗi lần. Các bản phát hành trong tương lai sẽ có một chế độ phát triển không thực sự khởi chạy máy chủ nhưng cho phép bạn chạy các ứng dụng khách như thể nó (giống như một kịch bản php bình thường, nơi mọi thứ được nạp mỗi lần).
 
 
-### Multithreading
 
-Aphplication is multi-threaded. It will launch as many processes as you like. This should be up to 3x the number of cores (or virtual cores) your CPU has. This is because often PHP scripts pause (e.g. while waiting for MySQL to return some data).
+## Hiệu suất
 
-You can set the number of threads by using
+Aphplication có thể lên đến 1000% nhanh hơn so với một kịch bản PHP tiêu chuẩn. Khi bạn chạy Laravel, Wordpress hay Zend project bằng thông dịch PHP nó sẽ thực thi và làm rất nhiều việc: tải tất cả các tệp tin required.php, kết nối với cơ sở dữ liệu và cuối cùng xử lý yêu cầu của bạn. Với Aphplication, tất cả các mã boostrapping được thực hiện một lần, khi máy chủ bắt đầu. Khi ai đó kết nối họ đang kết nối với ứng dụng đang chạy đã thực hiện tất cả công việc boostrapping, máy chủ sau đó chỉ xử lý yêu cầu và đưa nó cho khách hàng.
+
+Bạn có thể nghĩ về máy chủ ứng dụng một chút như MySQL, nó luôn chạy và chờ xử lý các yêu cầu. Khi một yêu cầu được thực hiện, nó thực hiện một số xử lý và trả về kết quả. Không giống như một tập lệnh PHP truyền thống, nó tiếp tục chạy sẵn sàng để xử lý yêu cầu tiếp theo.
+
+Điều này mang lại cho Aphplication một lợi ích hiệu suất rất lớn so với phương pháp truyền thống để tải tất cả các tệp được yêu cầu và thực hiện tất cả các kết nối cần thiết trên mỗi yêu cầu.
+
+
+### Đa luồng
+
+Aphplication là đa luồng. Nó sẽ khởi động như nhiều quá trình như bạn muốn. Điều này nên lên đến 3x số lõi (hoặc lõi ảo) CPU của bạn có. Điều này là do các tập lệnh PHP thường tạm dừng (ví dụ: trong khi chờ MySQL trả về một số dữ liệu).
+
+Bạn có thể đặt số lượng thread bằng cách sử dụng
 
 ```php
 $server->setThreads($number);
 ```
 
-before `$server->start()`
+trước `$server->start()`
